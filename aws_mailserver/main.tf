@@ -15,9 +15,6 @@ data "template_file" "traefik" {
   }
 }
 
-
-
-
 resource "aws_instance" "instance" {
   ami             = "${data.aws_ami.ubuntu.id}"
   instance_type   = "t2.micro"
@@ -71,18 +68,82 @@ resource "aws_instance" "instance" {
 }
 
 resource "aws_security_group" "instance" {
-  name = "allow_all_tcp"
+  name = "mailserver"
+
   ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    from_port = 25 
+    to_port = 25 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80 
+    to_port = 80 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443 
+    to_port = 443 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 110
+    to_port = 110 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 143 
+    to_port = 143 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 465 
+    to_port = 465 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 587 
+    to_port = 587 
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 993 
+    to_port = 993
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 995 
+    to_port = 995
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 4190 
+    to_port = 4190 
+    protocol = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port = 0
-    to_port = 65535
-    protocol = "tcp"
+    to_port = 0 
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
