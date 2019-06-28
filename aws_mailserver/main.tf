@@ -15,6 +15,11 @@ data "template_file" "traefik" {
   }
 }
 
+data "template_file" "daemon" {
+  template = "${file("config/daemon.json")}"
+  vars = {}
+}
+
 resource "aws_instance" "instance" {
   ami             = "${data.aws_ami.ubuntu.id}"
   instance_type   = "t2.micro"
@@ -57,6 +62,10 @@ resource "aws_instance" "instance" {
     destination = "~/files/traefik.toml"
   }
 
+  provisioner "file" {
+    content     = "${data.template_file.daemon.rendered}"
+    destination = "~/files/daemon.json"
+  }
 
   provisioner "remote-exec" {
         inline = [
@@ -64,87 +73,29 @@ resource "aws_instance" "instance" {
             "~/provision.sh",
         ]
   }
-
 }
 
 resource "aws_security_group" "instance" {
   name = "mailserver"
 
   ingress {
-    from_port = 25 
-    to_port = 25 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 80 
-    to_port = 80 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 443 
-    to_port = 443 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 110
-    to_port = 110 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 143 
-    to_port = 143 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 465 
-    to_port = 465 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 587 
-    to_port = 587 
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 993 
-    to_port = 993
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 995 
-    to_port = 995
-    protocol = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 4190 
-    to_port = 4190 
+    from_port = 0
+    to_port = 65535 
     protocol = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port = 0
-    to_port = 0 
-    protocol = "-1"
+    to_port = 65535
+    protocol = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "UDP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }

@@ -10,10 +10,19 @@ variable "cloudflare_token" {}
 variable "cloudflare_zone" {}
 
 
-resource "cloudflare_record" "aws" {
+resource "cloudflare_record" "root" {
   domain = "${var.cloudflare_zone}"
-  name   = "aws"
-  value  = "${aws_instance.instance.public_ip}"
+  name   = "@"
+  value  = "${scaleway_server.mailserver.public_ip}"
+  type   = "A"
+  ttl    = 120
+}
+
+
+resource "cloudflare_record" "scaleway" {
+  domain = "${var.cloudflare_zone}"
+  name   = "scaleway"
+  value  = "${scaleway_server.mailserver.public_ip}"
   type   = "A"
   ttl    = 120
 }
@@ -21,7 +30,7 @@ resource "cloudflare_record" "aws" {
 resource "cloudflare_record" "mail" {
   domain = "${var.cloudflare_zone}"
   name   = "mail"
-  value  = "${aws_instance.instance.public_ip}"
+  value  = "${scaleway_server.mailserver.public_ip}"
   type   = "A"
   ttl    = 120 
 }
@@ -69,7 +78,7 @@ resource "cloudflare_record" "postfixadmin" {
 resource "cloudflare_record" "spf1" {
   domain = "${var.cloudflare_zone}"
   name   = "@" 
-  value  = "v=spf1 a mx ip4:${aws_instance.instance.public_ip} ~all" 
+  value  = "v=spf1 a mx ip4:${scaleway_server.mailserver.public_ip} ~all" 
   type   = "TXT"
   ttl    = 120 
 }
